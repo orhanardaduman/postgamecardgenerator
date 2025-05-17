@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CardGeneratorProps } from '../types';
 
-export default function CardGenerator({ cardData, onDataChange, onGenerate }: CardGeneratorProps) {
+export default function CardGenerator({ cardData, onDataChange }: CardGeneratorProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [logoPreviewUrls, setLogoPreviewUrls] = useState<{[key: number]: string}>({});
 

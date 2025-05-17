@@ -27,14 +27,14 @@ export default function TournamentCardPage() {
     brandLogos: []
   });
 
-  const [generatedCardUrl, setGeneratedCardUrl] = useState<string | null>(null);
+  //const [generatedCardUrl, setGeneratedCardUrl] = useState<string | null>(null);
   const previewRef = useRef<{ downloadCardAsImage: () => Promise<void> }>(null);
 
   const handleDataChange = (newData: Partial<CardData>) => {
     setCardData((prev: CardData) => ({ ...prev, ...newData }));
   };
 
-  const generateCard = () => {
+  /*const generateCard = () => {
     // Trigger the download functionality in the CardPreview component
     if (previewRef.current) {
       previewRef.current.downloadCardAsImage();
@@ -42,7 +42,7 @@ export default function TournamentCardPage() {
     
     // Also set the generated URL for sharing (optional)
     setGeneratedCardUrl(`/tournament-card/share/${Math.random().toString(36).substring(2, 15)}`);
-  };
+  };*/
 
   return (
     <div className="min-h-screen bg-gray-900 text-white py-4 sm:py-8">
@@ -54,7 +54,6 @@ export default function TournamentCardPage() {
             <CardGenerator 
               cardData={cardData} 
               onDataChange={handleDataChange} 
-              onGenerate={generateCard}
             />
           </div>
           
@@ -62,7 +61,7 @@ export default function TournamentCardPage() {
             <h2 className="text-xl font-semibold mb-4 text-blue-400">Card Preview</h2>
             <CardPreview ref={previewRef} cardData={cardData} />
             
-            {generatedCardUrl && (
+            {/*{generatedCardUrl && (
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
                 <p className="text-green-700 font-medium">Card generated successfully!</p>
                 <p className="text-sm text-gray-600 mt-2">
@@ -78,7 +77,7 @@ export default function TournamentCardPage() {
                   Copy Link
                 </button>
               </div>
-            )}
+            )*/}
           </div>
         </div>
       </div>

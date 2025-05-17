@@ -26,7 +26,6 @@ export interface CardData {
 export interface CardGeneratorProps {
   cardData: CardData;
   onDataChange: (newData: Partial<CardData>) => void;
-  onGenerate: () => void;
 }
 
 export interface CardPreviewProps {
