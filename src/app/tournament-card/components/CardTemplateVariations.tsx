@@ -538,14 +538,7 @@ function calculateRating(cardData: CardTemplateProps['cardData']): string {
   return '90';
 }
 
-function getInitials(role: string): string {
-  if (!role) return 'CEO';
-  
-  const words = role.split(/\s+/);
-  if (words.length === 1) return words[0].substring(0, 3).toUpperCase();
-  
-  return words.slice(0, 2).map(word => word.charAt(0)).join('').toUpperCase();
-}
+// Function removed as it was unused
 
 function adjustColorBrightness(color: string, percent: number): string {
   let R = parseInt(color.substring(1, 3), 16);

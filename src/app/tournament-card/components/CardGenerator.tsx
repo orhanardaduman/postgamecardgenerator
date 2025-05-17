@@ -157,6 +157,7 @@ export default function CardGenerator({ cardData, onDataChange, onGenerate }: Ca
           />
           {avatarPreview && (
             <div className="mt-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={avatarPreview} 
                 alt="Avatar preview" 
@@ -389,14 +390,14 @@ export default function CardGenerator({ cardData, onDataChange, onGenerate }: Ca
         </button>
       </div>
 
-      <div className="mt-6 sm:mt-8">
+    {/*  <div className="mt-6 sm:mt-8">
         <button
           onClick={onGenerate}
           className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 transition text-base sm:text-lg"
         >
           Generate Tournament Card
         </button>
-      </div>
+      </div>*/}
     </div>
   );
 }

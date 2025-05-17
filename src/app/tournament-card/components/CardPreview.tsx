@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
-// @ts-ignore - Ignore type checking for dom-to-image
+// @ts-expect-error - Type definitions not available for dom-to-image
 import domtoimage from 'dom-to-image';
 import { CardPreviewProps } from '../types';
 import CardTemplate from '@/app/tournament-card/components/CardTemplate';
@@ -171,5 +171,8 @@ const CardPreview = forwardRef(({ cardData }: CardPreviewProps, ref) => {
     </div>
   );
 });
+
+// Add display name to the component
+CardPreview.displayName = 'CardPreview';
 
 export default CardPreview;

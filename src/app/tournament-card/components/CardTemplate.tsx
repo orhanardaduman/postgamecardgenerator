@@ -1,7 +1,6 @@
 'use client';
 
 import { CardTemplateProps } from '../types';
-import Image from 'next/image';
 
 export default function CardTemplate({ cardData, className = '' }: CardTemplateProps) {
   // Default avatar if none provided
