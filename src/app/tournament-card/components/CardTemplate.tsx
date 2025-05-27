@@ -3,10 +3,15 @@
 import { CardTemplateProps } from '../types';
 
 export default function CardTemplate({ cardData, className = '' }: CardTemplateProps) {
-  // Default avatar if none provided
-  const avatarSrc = cardData.avatar 
-    ? URL.createObjectURL(cardData.avatar) 
-    : 'https://via.placeholder.com/300';
+  // Use player image from API or avatar if provided, otherwise use placeholder
+  const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
 
   // Default styling with custom border color
   const defaultBorderColor = cardData.borderColor || '#D4AF37';
@@ -27,7 +32,7 @@ export default function CardTemplate({ cardData, className = '' }: CardTemplateP
       {/* Player Image and Info */}
       <div className="flex flex-col items-center px-6 z-20" >
         <div className="w-40 h-40 rounded-full overflow-hidden border-2 mb-4 shadow-lg" style={{ borderColor: defaultBorderColor }}>
-          {cardData.avatar && (
+          {hasImage && (
             // eslint-disable-next-line @next/next/no-img-element
             <img 
               src={avatarSrc} 
@@ -35,7 +40,7 @@ export default function CardTemplate({ cardData, className = '' }: CardTemplateP
               className="w-full h-full object-cover"
             />
           )}
-          {!cardData.avatar && (
+          {!hasImage && (
             <div className="w-full h-full bg-gray-800 flex items-center justify-center">
               <span className="text-gray-400">No Image</span>
             </div>
@@ -74,6 +79,7 @@ export default function CardTemplate({ cardData, className = '' }: CardTemplateP
                   src={logo.imageUrl} 
                   alt={logo.name} 
                   className="h-full object-contain"
+                  style={{ filter: 'drop-shadow(0 0 0 white) invert(1)' }}
                 />
               ) : (
                 <div className="h-full px-4 bg-white bg-opacity-10 flex items-center rounded-full">

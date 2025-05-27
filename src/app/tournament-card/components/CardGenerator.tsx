@@ -1,11 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { CardGeneratorProps } from '../types';
+import { getRankIconUrl } from '@/app/services/valorant-api';
 
 export default function CardGenerator({ cardData, onDataChange }: CardGeneratorProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [logoPreviewUrls, setLogoPreviewUrls] = useState<{[key: number]: string}>({});
+  const [valorantPlayer, setValorantPlayer] = useState({ name: '', tag: '' });
+  const [valorantRegion, setValorantRegion] = useState('eu');
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [playerRank, setPlayerRank] = useState({ tier: 'GOLD', rank: '2' });
+  const [rankIconUrl, setRankIconUrl] = useState<string>('');
+  const [playerImageUrl, setPlayerImageUrl] = useState<string | null>(null);  
+  
+  // Update rank icon URL when player rank changes
+  useEffect(() => {
+    setRankIconUrl(getRankIconUrl(playerRank.tier, playerRank.rank));
+  }, [playerRank]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,7 +58,6 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
     onDataChange({ stats: updatedStats });
   };
 
-
   const handleAddBrandLogo = () => {
     onDataChange({
       brandLogos: [
@@ -73,6 +85,96 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
       const updatedPreviews = {...logoPreviewUrls};
       delete updatedPreviews[index];
       setLogoPreviewUrls(updatedPreviews);
+    }
+  };
+
+  // Parse player name and tag from input (format: "Name#Tag")
+  const handlePlayerNameChange = (input: string) => {
+    // Split the input by # character
+    const parts = input.split('#');
+    
+    if (parts.length > 1) {
+      // If there's a # in the input, use parts before # as name and after # as tag
+      const name = parts[0].trim();
+      const tag = parts.slice(1).join('#').trim(); // Join all parts after the first # in case there are multiple #
+      setValorantPlayer({ name, tag });
+    } else {
+      // If there's no #, just update the name
+      setValorantPlayer({ name: input.trim(), tag: valorantPlayer.tag });
+    }
+  };
+
+  // Fetch player stats from Tracker Network API (third-party)
+  const fetchStats = async () => {
+    if (!valorantPlayer.name || !valorantPlayer.tag) {
+      alert('Please enter a player name and tag');
+      return;
+    }
+
+    setIsLoadingStats(true);
+    
+    try {
+      // Make a request to our custom API endpoint that will proxy the request to Tracker Network
+      const response = await fetch(
+        `/api/tracker-network/player?name=${encodeURIComponent(valorantPlayer.name)}&tag=${encodeURIComponent(valorantPlayer.tag)}&region=${valorantRegion}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(data);      
+      // Extract stats from the response
+      const stats = {
+        kda: data.stats?.kda || '0.0',
+        winRate: data.stats?.winRate || '0%',
+        mvps: data.stats?.mvps || '0',
+        final: data.stats?.final || '0',
+        tier: data.rank?.tier || 'GOLD',
+        rank: data.rank?.number || '2',
+        image: data.image || 'https://via.placeholder.com/300'
+      };
+
+      // Update card data with the fetched stats
+      const updatedStats = [
+        { label: 'KDA', value: stats.kda },
+        { label: 'WIN RATE', value: stats.winRate },
+        { label: 'MVPS', value: stats.mvps },
+        { label: 'FINAL', value: stats.final }
+      ];
+
+      // Update player rank information
+      setPlayerRank({
+        tier: stats.tier,
+        rank: stats.rank
+      });
+
+      // Update player image if available
+      if (stats.image) {
+        setPlayerImageUrl(stats.image);
+        // Also update avatar in card data
+        onDataChange({ 
+          stats: updatedStats,
+          playerName: valorantPlayer.name.toUpperCase(),
+          role: `${stats.tier} ${stats.rank}`.trim(), // Set role to player's rank
+          playerImage: stats.image // Add player image from API
+        });
+      } else {
+        onDataChange({ 
+          stats: updatedStats,
+          playerName: valorantPlayer.name.toUpperCase(),
+          role: `${stats.tier} ${stats.rank}`.trim() // Set role to player's rank
+        });
+      }
+
+      // Show success message
+      alert('Player stats loaded successfully!');
+    } catch (error) {
+      console.error('Error fetching player stats:', error);
+      alert('Failed to fetch player stats. Please try again.');
+    } finally {
+      setIsLoadingStats(false);
     }
   };
 
@@ -149,20 +251,68 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
         
         <div className="space-y-2">
           <label className="block text-sm font-medium text-blue-400">Avatar</label>
-          <input
-            type="file"
-            onChange={handleAvatarChange}
-            className="w-full"
-            accept="image/*"
-          />
-          {avatarPreview && (
-            <div className="mt-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={avatarPreview} 
-                alt="Avatar preview" 
-                className="h-20 w-20 object-cover rounded-md"
-              />
+          <div className="flex items-center space-x-4">
+            <input
+              type="file"
+              onChange={handleAvatarChange}
+              className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 focus:outline-none"
+              accept="image/*"
+            />
+            {playerImageUrl && (
+              <button 
+                type="button"
+                onClick={() => {
+                  // Use player image from API as avatar
+                  if (playerImageUrl) {
+                    // First, update the card data with the player image
+                    onDataChange({ 
+                      playerImage: playerImageUrl,
+                      avatar: null // Clear any uploaded avatar file
+                    });
+                    
+                    // Then set the avatar preview to show the image
+                    setAvatarPreview(playerImageUrl);
+                    
+                    // Show confirmation to user
+                    alert('Player image set as avatar!');
+                    
+                    console.log('Updated player image:', playerImageUrl);
+                  } else {
+                    alert('No player image available. Please fetch player stats first.');
+                  }
+                }}
+                className="py-2 px-4 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 focus:outline-none"
+              >
+                Use Player Image
+              </button>
+            )}
+          </div>
+          {(avatarPreview || playerImageUrl) && (
+            <div className="mt-2 flex space-x-4">
+              {avatarPreview && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Current Avatar:</p>
+                  <Image 
+                    src={avatarPreview} 
+                    alt="Avatar preview" 
+                    width={100} 
+                    height={100} 
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              )}
+              {playerImageUrl && !avatarPreview && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Player Image from API:</p>
+                  <Image 
+                    src={playerImageUrl} 
+                    alt="Player image from API" 
+                    width={100} 
+                    height={100} 
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -170,7 +320,70 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
 
       <hr className="my-6" />
       
-      <h2 className="text-xl font-semibold text-blue-400 mt-4 sm:mt-6">Player Stats</h2>
+      <h2 className="text-xl font-semibold text-blue-400">Valorant API Integration</h2>
+      
+      <div className="bg-gray-800 p-4 rounded-md mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-blue-400">Valorant Player (Name#Tag)</label>
+            <input
+              type="text"
+              value={`${valorantPlayer.name}${valorantPlayer.tag ? '#' + valorantPlayer.tag : ''}`}
+              onChange={(e) => handlePlayerNameChange(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter player name#tag (e.g. ENVY Thanos#LVgod)"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-blue-400">Region</label>
+            <select
+              value={valorantRegion}
+              onChange={(e) => setValorantRegion(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="eu">Europe (EU)</option>
+              <option value="na">North America (NA)</option>
+              <option value="ap">Asia Pacific (AP)</option>
+              <option value="kr">Korea (KR)</option>
+            </select>
+          </div>
+        </div>
+        
+        {/* Display player rank if available */}
+        {rankIconUrl && (
+          <div className="mt-3 flex items-center">
+            <div className="mr-3">
+              <label className="block text-sm font-medium text-blue-400 mb-1">Current Rank</label>
+              <div className="flex items-center bg-gray-700 rounded-md p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={rankIconUrl} 
+                  alt={`${playerRank.tier} ${playerRank.rank}`}
+                  className="h-10 w-10 mr-2"
+                />
+                <span className="text-white">
+                  {playerRank.tier} {playerRank.rank}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <button
+          onClick={fetchStats}
+          disabled={isLoadingStats}
+          className={`mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition ${isLoadingStats ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isLoadingStats ? 'Loading...' : 'Fetch Player Stats'}
+        </button>
+        
+        <p className="mt-2 text-xs text-gray-400">
+          Using Henrik API integration. Player stats will be fetched and displayed on the card.
+        </p>
+      </div>
+      
+      {/*<h2 className="text-xl font-semibold text-blue-400 mt-4">Stats</h2>
       <div className="space-y-3 mt-2 sm:mt-3">
         {cardData.stats.map((stat, index) => (
           <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
@@ -217,13 +430,13 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
         <p className="text-xs text-gray-400 mt-1">
           You can add up to 4 stats. At least 1 stat is required.
         </p>
-      </div>
+      </div>*/}
 
       <hr className="my-6" />
       
       <h2 className="text-xl font-semibold text-blue-400">Card Template</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3">
-        {(['classic', 'modern', 'fifa', 'esports', 'minimalist'] as const).map((template) => (
+        {(['classic', 'modern', 'minimalist', 'new_one', 'golden', 'flaptzy'] as const).map((template) => (
           <div 
             key={template}
             onClick={() => onDataChange({ template })}
@@ -232,172 +445,18 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
               ${cardData.template === template ? 'ring-2 ring-offset-2 ring-blue-500' : 'border border-gray-300'}
               ${template === 'classic' ? 'bg-blue-900 text-white' : ''}
               ${template === 'modern' ? 'bg-purple-900 text-white' : ''}
-              ${template === 'fifa' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' : ''}
-              ${template === 'esports' ? 'bg-red-900 text-white' : ''}
               ${template === 'minimalist' ? 'bg-gray-900 text-white' : ''}
+              ${template === 'new_one' ? 'bg-gray-900 text-white' : ''}
+              ${template === 'golden' ? 'bg-yellow-800 text-white' : ''}
+              ${template === 'flaptzy' ? 'bg-red-900 text-white' : ''}
             `}
           >
-            {template.charAt(0).toUpperCase() + template.slice(1)}
+            {template.replace('_', ' ').toUpperCase()}
           </div>
         ))}
       </div>
 
       <hr className="my-6" />
-      
-      <h2 className="text-xl font-semibold text-blue-400 mt-6">Card Colors</h2>
-
-      {/* Border Color */}
-      <div className="mt-3">
-        <label className="block text-sm font-medium text-blue-400 mb-1">Border Color</label>
-        <div className="flex items-center gap-3">
-          <input 
-            type="color" 
-            value={cardData.borderColor || '#D4AF37'} 
-            onChange={(e) => onDataChange({ borderColor: e.target.value })}
-            className="w-10 h-10 rounded cursor-pointer"
-          />
-          <div className="flex-1">
-            <input 
-              type="text" 
-              value={cardData.borderColor || '#D4AF37'} 
-              onChange={(e) => onDataChange({ borderColor: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. #D4AF37"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Background Color */}
-      <div className="mt-3">
-        <label className="block text-sm font-medium text-blue-400 mb-1">Background Color</label>
-        <div className="flex items-center gap-3">
-          <input 
-            type="color" 
-            value={cardData.backgroundColor || '#0a2240'} 
-            onChange={(e) => onDataChange({ backgroundColor: e.target.value })}
-            className="w-10 h-10 rounded cursor-pointer"
-          />
-          <div className="flex-1">
-            <input 
-              type="text" 
-              value={cardData.backgroundColor || '#0a2240'} 
-              onChange={(e) => onDataChange({ backgroundColor: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. #0a2240"
-            />
-          </div>
-        </div>
-      </div>
-      
-      {/* Text Color */}
-      <div className="mt-3">
-        <label className="block text-sm font-medium text-blue-400 mb-1">Text Color</label>
-        <div className="flex items-center gap-3">
-          <input 
-            type="color" 
-            value={cardData.textColor || '#FFFFFF'} 
-            onChange={(e) => onDataChange({ textColor: e.target.value })}
-            className="w-10 h-10 rounded cursor-pointer"
-          />
-          <div className="flex-1">
-            <input 
-              type="text" 
-              value={cardData.textColor || '#FFFFFF'} 
-              onChange={(e) => onDataChange({ textColor: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. #FFFFFF"
-            />
-          </div>
-        </div>
-      </div>
-      
-      {/* Accent Color */}
-      <div className="mt-3">
-        <label className="block text-sm font-medium text-blue-400 mb-1">Accent Color</label>
-        <div className="flex items-center gap-3">
-          <input 
-            type="color" 
-            value={cardData.accentColor || '#F7D366'} 
-            onChange={(e) => onDataChange({ accentColor: e.target.value })}
-            className="w-10 h-10 rounded cursor-pointer"
-          />
-          <div className="flex-1">
-            <input 
-              type="text" 
-              value={cardData.accentColor || '#F7D366'} 
-              onChange={(e) => onDataChange({ accentColor: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. #F7D366"
-            />
-          </div>
-        </div>
-      </div>
-
-      <hr className="my-4 sm:my-6" />
-      
-      <h2 className="text-xl font-semibold text-blue-400">Brand Logos</h2>
-      <div className="space-y-3 sm:space-y-4 mt-2 sm:mt-3">
-        {cardData.brandLogos.map((logo, index) => (
-          <div key={index} className="space-y-2 sm:space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <input
-                type="text"
-                value={logo.name}
-                onChange={(e) => handleUpdateBrandLogo(index, 'name', e.target.value)}
-                className="w-full sm:w-1/3 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Brand name"
-              />
-              
-              <div className="flex flex-1 gap-2 items-center">
-                <label className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-600 bg-blue-600 text-white rounded-md hover:bg-blue-500 cursor-pointer transition text-sm sm:text-base">
-                  Upload Logo
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleLogoImageUpload(index, e)}
-                  />
-                </label>
-                
-                {logoPreviewUrls[index] && (
-                  <div className="h-10 w-10 relative overflow-hidden rounded border border-gray-600 flex-shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={logoPreviewUrls[index]} 
-                      alt={logo.name || `Logo ${index + 1}`}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <button
-                onClick={() => handleRemoveBrandLogo(index)}
-                className="p-2 text-red-600 hover:text-red-800"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        ))}
-        
-        <button
-          onClick={handleAddBrandLogo}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
-        >
-          Add Brand Logo
-        </button>
-      </div>
-
-    {/*  <div className="mt-6 sm:mt-8">
-        <button
-          onClick={onGenerate}
-          className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 transition text-base sm:text-lg"
-        >
-          Generate Tournament Card
-        </button>
-      </div>*/}
     </div>
   );
 }

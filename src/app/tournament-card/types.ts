@@ -4,6 +4,7 @@ export interface CardData {
   teamName: string;
   role: string;
   avatar: File | null;
+  playerImage?: string; // Player image URL from API
   stats: {
     label: string;
     value: string;
@@ -12,7 +13,7 @@ export interface CardData {
   backgroundColor: string;
   textColor: string;
   accentColor: string;
-  template: 'classic' | 'modern' | 'angled' | 'fifa' | 'esports' | 'minimalist';
+  template: 'classic' | 'modern' | 'angled' | 'fifa' | 'esports' | 'minimalist' | 'new_one' | 'golden' | 'flaptzy';
   socialLinks: {
     platform: string;
     url: string;

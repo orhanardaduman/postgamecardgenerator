@@ -24,7 +24,10 @@ export default function TournamentCardPage() {
     accentColor: '#F7D366',
     template: 'classic',
     socialLinks: [],
-    brandLogos: []
+    brandLogos: [
+      { name: 'BTC', imageUrl: '/btc.svg' },
+      { name: 'TWOGG', imageUrl: '/twogg.svg' }
+    ]
   });
 
   //const [generatedCardUrl, setGeneratedCardUrl] = useState<string | null>(null);

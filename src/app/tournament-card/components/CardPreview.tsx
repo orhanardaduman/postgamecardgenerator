@@ -5,7 +5,7 @@ import { useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import domtoimage from 'dom-to-image';
 import { CardPreviewProps } from '../types';
 import CardTemplate from '@/app/tournament-card/components/CardTemplate';
-import { ModernTemplate, EsportsTemplate, MinimalistTemplate, FifaTemplate } from './CardTemplateVariations';
+import { ModernTemplate, EsportsTemplate, MinimalTemplate, FifaTemplate, OpenFireTemplate, GoldenTemplate, OpenFireFlaptzyTemplate } from './CardTemplateVariations';
 
 const CardPreview = forwardRef(({ cardData }: CardPreviewProps, ref) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -119,7 +119,13 @@ const CardPreview = forwardRef(({ cardData }: CardPreviewProps, ref) => {
       case 'esports':
         return <EsportsTemplate cardData={cardData} />;
       case 'minimalist':
-        return <MinimalistTemplate cardData={cardData} />;
+        return <MinimalTemplate cardData={cardData} />;
+      case "new_one":
+        return <OpenFireTemplate cardData={cardData} />;
+      case "golden":
+        return <GoldenTemplate cardData={cardData} />;
+      case "flaptzy":
+        return <OpenFireFlaptzyTemplate cardData={cardData} />;
       case 'classic':
       default:
         return <CardTemplate cardData={cardData} />;

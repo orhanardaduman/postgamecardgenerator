@@ -1,15 +1,21 @@
 'use client';
 
 import { CardTemplateProps } from '../types';
+import { getAvatarSrc, hasImage } from './CardTemplateUtils';
 
 // Base template is already created, now let's add variations
 
 // Variation 1: Modern style matching the provided image with navy blue and gold theme
 export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) {
-  // Default avatar if none provided
-  const avatarSrc = cardData.avatar 
-    ? URL.createObjectURL(cardData.avatar) 
-    : 'https://via.placeholder.com/300';
+  // Use player image from API or avatar if provided, otherwise use placeholder
+  const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
 
   return (
     <div 
@@ -44,14 +50,14 @@ export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) 
       {/* Header - Title at the top */}
       <div className="pt-6 pb-2 text-center relative z-30">
         <h1 className="text-3xl font-bold uppercase" style={{ color: cardData.accentColor || '#D4AF37' }}>
-          {cardData.teamName || 'OPEN FIRE'}
+          {cardData.teamName || ''}
         </h1>
       </div>
 
       {/* Player Image - Behind text with gradient fade */}
       <div className="absolute flex w-full justify-center mt-4 z-20">
         <div className="w-100 h-90 overflow-hidden relative">
-          {cardData.avatar && (
+          {hasImage && (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
@@ -68,7 +74,7 @@ export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) 
               ></div>
             </>
           )}
-          {!cardData.avatar && (
+          {!hasImage && (
             <div className="w-full h-full bg-gray-700 flex items-center justify-center">
               <span className="text-gray-400">No Image</span>
             </div>
@@ -87,10 +93,10 @@ export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) 
         {/* Player Name and Title */}
         <div className="mt-2 text-center">
           <p className="text-2xl uppercase font-medium" style={{ color: cardData.textColor || '#FFFFFF' }}>
-            {cardData.title || 'LALE ERGIN'}
+            {cardData.title || ''|| 'LALE ERGIN'}
           </p>
           <p className="text-lg uppercase mt-1" style={{ color: cardData.accentColor || '#D4AF37' }}>
-            {cardData.role || 'CO-FOUNDER & CEO'}
+            {cardData.role || ''}
           </p>
         </div>
       </div>
@@ -130,6 +136,7 @@ export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) 
                     src={logo.imageUrl} 
                     alt={logo.name} 
                     className="h-full object-contain"
+                    style={{ filter: 'drop-shadow(0 0 0 white) invert(1)' }}
                   />
                 ) : (
                   <div className="flex items-center justify-center">
@@ -176,10 +183,15 @@ export function ModernTemplate({ cardData, className = '' }: CardTemplateProps) 
 
 // Variation 2: Angled Frame Template based on provided HTML/CSS
 export function AngledTemplate({ cardData, className = '' }: CardTemplateProps) {
-  // Default avatar if none provided
-  const avatarSrc = cardData.avatar 
-    ? URL.createObjectURL(cardData.avatar) 
-    : 'https://via.placeholder.com/300';
+  // Use player image from API or avatar if provided, otherwise use placeholder
+  const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
 
   return (
     <div 
@@ -204,12 +216,12 @@ export function AngledTemplate({ cardData, className = '' }: CardTemplateProps) 
       <div className="relative z-20 p-6 flex flex-col h-full">
         {/* Top Label */}
         <div className="text-center font-bold text-lg tracking-wider" style={{ color: cardData.accentColor || '#f7d366' }}>
-          {cardData.teamName || 'OPEN FIRE'}
+          {cardData.teamName || ''}
         </div>
 
         {/* Profile Image */}
         <div className="w-36 h-36 rounded-full mx-auto mt-4 mb-3 overflow-hidden">
-          {cardData.avatar && (
+          {hasImage && (
             // eslint-disable-next-line @next/next/no-img-element
             <img 
               src={avatarSrc} 
@@ -217,7 +229,7 @@ export function AngledTemplate({ cardData, className = '' }: CardTemplateProps) 
               className="w-full h-full object-cover"
             />
           )}
-          {!cardData.avatar && (
+          {!hasImage && (
             <div className="w-full h-full bg-gray-700 flex items-center justify-center">
               <span className="text-gray-400">No Image</span>
             </div>
@@ -230,10 +242,10 @@ export function AngledTemplate({ cardData, className = '' }: CardTemplateProps) 
             {cardData.playerName || 'ESA ESPORTS'}
           </h2>
           <p className="text-base font-bold mt-1" style={{ color: cardData.textColor || '#FFFFFF' }}>
-            {cardData.title || 'LALE ERGIN'}
+            {cardData.title || ''|| 'LALE ERGIN'}
           </p>
           <p className="text-xs mt-0.5" style={{ color: cardData.accentColor || '#f7d366' }}>
-            {cardData.role || 'CO-FOUNDER & CEO'}
+            {cardData.role || ''}
           </p>
         </div>
 
@@ -319,7 +331,7 @@ export function EsportsTemplate({ cardData, className = '' }: CardTemplateProps)
         {/* Header */}
         <div className="p-6 text-center">
           <h1 className="text-2xl font-bold uppercase" style={{ color: cardData.textColor || '#FFFFFF' }}>
-            {cardData.teamName || 'TEAM NAME'}
+            {cardData.teamName || ''}
           </h1>
         </div>
 
@@ -346,7 +358,7 @@ export function EsportsTemplate({ cardData, className = '' }: CardTemplateProps)
           </h2>
           
           <p className="text-lg uppercase mt-1 text-gray-300">
-            {cardData.title || 'TITLE'}
+            {cardData.title || ''}
           </p>
         </div>
 
@@ -400,10 +412,15 @@ export function EsportsTemplate({ cardData, className = '' }: CardTemplateProps)
 // Variation 3: Minimalist style with clean layout
 // Variation 4: FIFA-style player card template
 export function FifaTemplate({ cardData, className = '' }: CardTemplateProps) {
-  // Default avatar if none provided
-  const avatarSrc = cardData.avatar 
-    ? URL.createObjectURL(cardData.avatar) 
-    : 'https://via.placeholder.com/300';
+  // Use player image from API or avatar if provided, otherwise use placeholder
+  const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
 
   return (
     <div 
@@ -444,7 +461,7 @@ export function FifaTemplate({ cardData, className = '' }: CardTemplateProps) {
       {/* Player Image */}
       <div className="relative flex justify-center items-center mt-14 mb-2 z-10">
         <div className="w-44 h-44 overflow-visible">
-          {cardData.avatar && (
+          {hasImage && (
             // eslint-disable-next-line @next/next/no-img-element
             <img 
               src={avatarSrc} 
@@ -538,6 +555,287 @@ function calculateRating(cardData: CardTemplateProps['cardData']): string {
   return '90';
 }
 
+// Open Fire Template - Red gradient design from PSD file
+export function OpenFireTemplate({ cardData, className = '' }: CardTemplateProps) {
+    // Use player image from API or avatar if provided, otherwise use placeholder
+    const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
+
+  // Default styling with custom border color
+  const defaultBorderColor = cardData.borderColor || '#FF3A46';
+
+  return (
+    <div 
+      className={`relative rounded-lg overflow-hidden ${className}`}
+      style={{ 
+        aspectRatio: '9/16', 
+        maxWidth: '100%',
+        backgroundImage: 'url(/kartone.png)',
+        backgroundSize: 'cover',
+      }}
+    >
+      {/* Team Name at the top */}
+      <div className="relative pt-8 pb-2 text-center z-10">
+        <h1 className="text-5xl font-bold uppercase text-white">
+          {cardData.teamName || ''}
+        </h1>
+      </div>
+
+      {/* Player Image and Info */}
+      <div className="flex flex-col items-center px-6 z-20 mt-4" >
+        <div 
+          className="w-64 h-64 rounded-full overflow-hidden mb-8 shadow-lg" 
+          style={{ 
+            border: `8px solid ${defaultBorderColor}`,
+            backgroundColor: 'white'
+          }}
+        >
+         {hasImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={avatarSrc} 
+                alt={cardData.playerName || 'Player'} 
+                className="w-full h-full object-cover"
+              />
+              {/* Gradient overlay for bottom fade */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-32 to-transparent" 
+                style={{
+                  background: `linear-gradient(to top, ${cardData.backgroundColor || '#0a2240'} 10%, rgba(0,0,0,0) 100%)`
+                }}
+              ></div>
+            </>
+          )}
+          {!hasImage && (
+            <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
+        </div>
+
+        <h2 className="text-5xl font-bold uppercase mt-4 text-white">
+          {cardData.playerName || ''}
+        </h2>
+        
+        <p className="text-lg uppercase mt-2 text-white">
+          {cardData.title || ''}
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="mt-2 mb-4 px-6">
+        <div className="grid grid-cols-4 gap-0 text-center py-4">
+          {cardData.stats.length > 0 ? (
+            cardData.stats.map((stat, index) => (
+              <div key={index}>
+                <p className="text-sm font-medium text-white">{stat.label}</p>
+                <p className="text-4xl font-bold text-white">{stat.value}</p>
+              </div>
+            ))
+          ) : (
+            <>
+              <div>
+                <p className="text-sm font-medium text-white">KDA</p>
+                <p className="text-4xl font-bold text-white">5.8</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">WIN RATE</p>
+                <p className="text-4xl font-bold text-white">5.8</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">MVPS</p>
+                <p className="text-4xl font-bold text-white">5.8</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">FINAL</p>
+                <p className="text-4xl font-bold text-white">5.8</p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Brand Logos with semi-circle background */}
+      <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden">
+        {/* Content container */}
+        <div 
+          className="relative flex justify-between items-end p-6 pb-12 pr-24 pl-24"
+          style={{
+            height: '200px',
+            zIndex: 2
+          }}
+        >
+          {cardData.brandLogos.length > 0 ? (
+            cardData.brandLogos.map((logo, index) => (
+              <div key={index} className="h-10">
+                {logo.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={logo.imageUrl} 
+                    alt={logo.name} 
+                    className="h-full object-contain"
+                    style={{ filter: 'drop-shadow(0 0 0 white) invert(1)' }}
+                  />
+                ) : (
+                  <div className="h-full px-4 flex items-center">
+                    <span className="text-white text-sm font-medium">{logo.name}</span>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <>
+              <div className="h-10">
+                <span className="text-white font-medium">Ready2.gg</span>
+              </div>
+              <div className="h-10">
+                <span className="text-white font-medium">BtcTurk</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Social Media Links - hidden by default */}
+      {cardData.socialLinks.length > 0 && (
+        <div className="absolute top-6 right-6 flex flex-col gap-3" style={{ display: 'none' }}>
+          {cardData.socialLinks.map((link, index) => (
+            <div 
+              key={index} 
+              className="w-9 h-9 rounded-full bg-white bg-opacity-10 border border-gray-600 flex items-center justify-center hover:bg-opacity-20 transition-all"
+              title={link.platform}
+            >
+              <span className="text-white text-xs font-bold">
+                {link.platform.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// OpenFireFlaptzy Template - Exactly matching the provided image with diagonal stripes and stats at bottom
+export function OpenFireFlaptzyTemplate({ cardData, className = '' }: CardTemplateProps) {
+    // Use player image from API or avatar if provided, otherwise use placeholder
+    const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
+  return (
+    <div 
+      className={`relative overflow-hidden ${className}`}
+      style={{ 
+        aspectRatio: '9/16', 
+        maxWidth: '100%',
+        backgroundImage: 'url(/kartthree.png)',
+        backgroundColor: '#1a1a2e' // Dark blue background
+      }}
+    >
+   
+
+      {/* OPEN FIRE text at top */}
+      <div className="relative z-30 pt-8 text-center">
+        <h1 className="text-3xl font-bold tracking-wider" style={{ color: '#ffcc00' }}>
+          {cardData.teamName || ''}
+        </h1>
+      </div>
+
+      {/* Player Image - Square with rounded corners */}
+      <div className="relative z-30 mt-4 flex justify-center">
+        <div className="w-56 h-56 rounded-3xl bg-white overflow-hidden">
+        {hasImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={avatarSrc} 
+                alt={cardData.playerName || ''} 
+                className="w-full h-full object-cover"
+              />
+             
+            </>
+          )}
+          {!hasImage && (
+            <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Player Name - Large */}
+      <div className="relative z-30 mt-6 text-center">
+        <h2 className="text-5xl font-bold tracking-wider" style={{ color: '#ffcc00' }}>
+          {cardData.playerName || ''}
+        </h2>
+        <p className="text-xl mt-1" style={{ color: '#ffcc00' }}>
+          {cardData.role || ''}
+        </p>
+      </div>
+
+      {/* Stats - Horizontal layout with equal spacing */}
+      <div className="absolute mt-20 left-0 right-0 px-6 z-30">
+        <div className="flex justify-between items-center">
+          {cardData.stats.slice(0, 4).map((stat, index) => (
+            <div key={index} className="text-center flex-1">
+              <p className="text-sm uppercase font-medium" style={{ color: '#a8aaacd9' }}>{stat.label || 'KDA'}</p>
+              <p className="text-4xl font-bold text-[#a8aaacd9]">{stat.value || '5.8'}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Brand Logos - Bottom */}
+      <div className="absolute bottom-6 left-0 right-0 px-6 z-30">
+        <div className="w-full flex justify-between items-center bg-white rounded-full py-2 px-4">
+          {cardData.brandLogos.length > 0 ? (
+            cardData.brandLogos.map((logo, index) => (
+              <div key={index} className="h-8 flex-1 flex justify-center">
+                {logo.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={logo.imageUrl} 
+                    alt={logo.name} 
+                    className="h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center">
+                    {index === 0 ? (
+                      <span className="text-black text-lg font-bold">Ready2.gg</span>
+                    ) : (
+                      <span className="text-black text-lg font-bold">BtcTurk</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <>
+              <div className="flex-1 flex justify-center">
+                <span className="text-black text-lg font-bold">Ready2.gg</span>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <span className="text-black text-lg font-bold">BtcTurk</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Function removed as it was unused
 
 function adjustColorBrightness(color: string, percent: number): string {
@@ -556,11 +854,198 @@ function adjustColorBrightness(color: string, percent: number): string {
   return `#${R.toString(16).padStart(2, '0')}${G.toString(16).padStart(2, '0')}${B.toString(16).padStart(2, '0')}`;
 }
 
-export function MinimalistTemplate({ cardData, className = '' }: CardTemplateProps) {
-  // Default avatar if none provided
-  const avatarSrc = cardData.avatar 
-    ? URL.createObjectURL(cardData.avatar) 
-    : 'https://via.placeholder.com/300';
+// Golden Template - Yellow/gold design with black name bar and diagonal patterns
+export function GoldenTemplate({ cardData, className = '' }: CardTemplateProps) {
+    // Use player image from API or avatar if provided, otherwise use placeholder
+    const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
+
+  return (
+    <div 
+      className={`relative overflow-hidden ${className}`}
+      style={{ 
+        aspectRatio: '9/16', 
+        maxWidth: '100%', 
+        background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
+      }}
+    >
+      {/* Diagonal patterns */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        {/* Top-left to bottom-right diagonal */}
+        <div className="absolute top-0 left-0 w-[200%] h-[30%] bg-yellow-300 opacity-50"
+          style={{ transform: 'rotate(-15deg) translateY(-20%) translateX(-20%)' }}></div>
+        
+        {/* Bottom-left to top-right diagonal */}
+        <div className="absolute bottom-0 left-0 w-[200%] h-[40%] bg-yellow-400 opacity-40"
+          style={{ transform: 'rotate(15deg) translateY(40%) translateX(-30%)' }}></div>
+      </div>
+      
+      {/* Team Name at the top left in a yellow triangle - positioned outside the white card */}
+      <div className="absolute top-0 left-0 z-20">
+        <div 
+          className="bg-[#FFD700] py-8 text-black font-bold p-5"
+          style={{
+            clipPath: 'polygon(0 0, 100% 0, 0 100%)',
+            width: '200px',
+            height: '200px'
+          }}
+        >
+          <h1 className="text-3xl font-bold uppercase leading-tight">
+            {cardData.teamName ? (
+              cardData.teamName.length > 8 ? (
+                <>
+                  {cardData.teamName.slice(0, Math.ceil(cardData.teamName.length/2))}<br />
+                  {cardData.teamName.slice(Math.ceil(cardData.teamName.length/2))}
+                </>
+              ) : cardData.teamName
+            ) : (
+              <></>
+            )}
+          </h1>
+        </div>
+      </div>
+      
+      {/* White inner card with padding */}
+      <div className="relative z-10 m-3 mt-5 bg-white h-[95%] w-[80%] mx-auto overflow-hidden flex flex-col">
+
+        {/* Main content area */}
+        <div className="flex-grow flex flex-col justify-between">
+          {/* Space for user image (white area) */}
+          <div className="flex-grow relative mx-2 mt-2">
+          {hasImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={avatarSrc} 
+                alt={cardData.playerName || 'Player'} 
+                className="w-full max-h-60 h-full object-cover"
+              />
+              
+            </>
+            
+          )}
+          {!hasImage && (
+            <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
+          </div>
+          
+          {/* Black name bar */}
+          <div className="bg-black text-center py-4 mx-2">
+            <h2 className="text-6xl font-bold uppercase text-[#FFD700]">
+              {cardData.playerName || 'FLAPTZY'}
+            </h2>
+            <p className="text-lg uppercase text-[#FFD700]">
+              {cardData.title || ''}
+            </p>
+          </div>
+
+          {/* Stats in a grid */}
+          <div className="mt-6 px-4">
+            <div className="grid grid-cols-2 gap-0 text-center">
+              {cardData.stats.length > 0 ? (
+                cardData.stats.map((stat, index) => {
+                  // Determine which borders to show based on position
+                  const isLeftColumn = index % 2 === 0;
+                  const isTopRow = index < 2;
+                  const borderClasses = `
+                    ${isLeftColumn ? 'border-r' : ''} 
+                    ${isTopRow ? 'border-b' : ''} 
+                    border-gray-300 p-3
+                  `;
+                  
+                  return (
+                    <div key={index} className={borderClasses}>
+                      <p className="text-sm font-medium text-black">{stat.label}</p>
+                      <p className="text-4xl font-bold text-black">{stat.value}</p>
+                    </div>
+                  );
+                })
+              ) : (
+                // Default stats if none provided
+                <>
+                  <div className="border-r border-b border-gray-300 p-3">
+                    <p className="text-sm font-medium text-black">KDA</p>
+                    <p className="text-4xl font-bold text-black">5.8</p>
+                  </div>
+                  <div className="border-b border-gray-300 p-3">
+                    <p className="text-sm font-medium text-black">MVPS</p>
+                    <p className="text-4xl font-bold text-black">5.8</p>
+                  </div>
+                  <div className="border-r border-gray-300 p-3">
+                    <p className="text-sm font-medium text-black">WIN RATE</p>
+                    <p className="text-4xl font-bold text-black">5.8</p>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm font-medium text-black">FINAL</p>
+                    <p className="text-4xl font-bold text-black">5.8</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Hashtag - use role field if available */}
+          <div className="text-center my-3">
+            <p className="text-xl font-bold">
+              {cardData.role ? `#${cardData.role.replace(/\s+/g, '').toUpperCase()}` : '#DAHASIVAR'}
+            </p>
+          </div>
+
+          {/* Horizontal line */}
+          <div className="h-1 bg-black w-full"></div>
+
+          {/* Brand Logos */}
+          <div className="flex justify-between items-center p-4">
+            {cardData.brandLogos.length > 0 ? (
+              cardData.brandLogos.map((logo, index) => (
+                <div key={index} className="h-8">
+                  {logo.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img 
+                      src={logo.imageUrl} 
+                      alt={logo.name} 
+                      className="h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-black font-bold">{logo.name}</span>
+                  )}
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="h-8">
+                  <span className="text-black font-bold">Ready2.gg</span>
+                </div>
+                <div className="h-8">
+                  <span className="text-black font-bold">BtcTurk</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MinimalTemplate({ cardData, className = '' }: CardTemplateProps) {
+  // Use player image from API or avatar if provided, otherwise use placeholder
+  const avatarSrc = cardData.playerImage
+    ? cardData.playerImage
+    : cardData.avatar 
+      ? URL.createObjectURL(cardData.avatar) 
+      : 'https://via.placeholder.com/300';
+      
+  // Check if the card has any image (either playerImage from API or uploaded avatar)
+  const hasImage = Boolean(cardData.playerImage || cardData.avatar);
 
   return (
     <div className={`relative w-full overflow-hidden ${className}`}
@@ -572,23 +1057,32 @@ export function MinimalistTemplate({ cardData, className = '' }: CardTemplatePro
       {/* Team Name */}
       <div className="pt-8 pb-4 text-center">
         <h1 className="text-2xl font-light uppercase tracking-widest" style={{ color: cardData.accentColor || '#000000' }}>
-          {cardData.teamName || 'TEAM NAME'}
+          {cardData.teamName || ''}
         </h1>
       </div>
 
       {/* Player Image and Info */}
       <div className="flex flex-col items-center px-6 pt-4">
         <div className="w-40 h-40 rounded-lg overflow-hidden shadow-md mb-6">
-          {cardData.avatar && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img 
-              src={avatarSrc} 
-              alt={cardData.playerName || 'Player'} 
-              className="w-full h-full object-cover"
-            />
+        {hasImage && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={avatarSrc} 
+                alt={cardData.playerName || 'Player'} 
+                className="w-full h-full object-cover"
+              />
+              {/* Gradient overlay for bottom fade */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-32 to-transparent" 
+                style={{
+                  background: `linear-gradient(to top, ${cardData.backgroundColor || '#0a2240'} 10%, rgba(0,0,0,0) 100%)`
+                }}
+              ></div>
+            </>
           )}
-          {!cardData.avatar && (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+          {!hasImage && (
+            <div className="w-full h-full bg-gray-700 flex items-center justify-center">
               <span className="text-gray-400">No Image</span>
             </div>
           )}
@@ -599,11 +1093,11 @@ export function MinimalistTemplate({ cardData, className = '' }: CardTemplatePro
         </h2>
         
         <p className="text-base uppercase mt-1 tracking-wider" style={{ color: cardData.textColor || '#000000', opacity: 0.75 }}>
-          {cardData.title || 'TITLE'}
+          {cardData.title || ''}
         </p>
         
         <p className="text-sm mt-1 tracking-wide" style={{ color: cardData.accentColor || '#000000' }}>
-          {cardData.role || 'CO-FOUNDER & CEO'}
+          {cardData.role || ''}
         </p>
       </div>
 
@@ -633,6 +1127,7 @@ export function MinimalistTemplate({ cardData, className = '' }: CardTemplatePro
                   src={logo.imageUrl} 
                   alt={logo.name} 
                   className="h-full object-contain"
+                  style={{ filter: 'drop-shadow(0 0 0 white) invert(1)' }}
                 />
               ) : (
                 <div className="flex items-center">
