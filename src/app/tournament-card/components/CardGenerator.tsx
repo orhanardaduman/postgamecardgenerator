@@ -88,21 +88,8 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
     }
   };
 
-  // Parse player name and tag from input (format: "Name#Tag")
-  const handlePlayerNameChange = (input: string) => {
-    // Split the input by # character
-    const parts = input.split('#');
-    
-    if (parts.length > 1) {
-      // If there's a # in the input, use parts before # as name and after # as tag
-      const name = parts[0].trim();
-      const tag = parts.slice(1).join('#').trim(); // Join all parts after the first # in case there are multiple #
-      setValorantPlayer({ name, tag });
-    } else {
-      // If there's no #, just update the name
-      setValorantPlayer({ name: input.trim(), tag: valorantPlayer.tag });
-    }
-  };
+  // We no longer need the handlePlayerNameChange function as we're using separate inputs
+  // for player name and tag with direct state updates
 
   // Fetch player stats from Tracker Network API (third-party)
   const fetchStats = async () => {
@@ -325,14 +312,24 @@ export default function CardGenerator({ cardData, onDataChange }: CardGeneratorP
       <div className="bg-gray-800 p-4 rounded-md mb-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-blue-400">Valorant Player (Name#Tag)</label>
-            <input
-              type="text"
-              value={`${valorantPlayer.name}${valorantPlayer.tag ? '#' + valorantPlayer.tag : ''}`}
-              onChange={(e) => handlePlayerNameChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter player name#tag (e.g. ENVY Thanos#LVgod)"
-            />
+            <label className="block text-sm font-medium text-blue-400">Valorant Player</label>
+            <div className="flex space-x-2">
+              <input
+                value={valorantPlayer.name}
+                onChange={(e) => setValorantPlayer({ ...valorantPlayer, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter player name (e.g. ENVY Thanos)"
+              />
+              <div className="flex items-center">
+                <span className="text-white mx-1">#</span>
+              </div>
+              <input
+                value={valorantPlayer.tag}
+                onChange={(e) => setValorantPlayer({ ...valorantPlayer, tag: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Tag (e.g. LVgod)"
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
