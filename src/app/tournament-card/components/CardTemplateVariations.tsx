@@ -924,7 +924,7 @@ export function GoldenTemplate({ cardData, className = '' }: CardTemplateProps) 
               <img 
                 src={avatarSrc} 
                 alt={cardData.playerName || 'Player'} 
-                className="w-full max-h-60 h-full object-cover"
+                className="w-full max-h-82 h-full object-cover"
               />
               
             </>
@@ -939,8 +939,8 @@ export function GoldenTemplate({ cardData, className = '' }: CardTemplateProps) 
           
           {/* Black name bar */}
           <div className="bg-black text-center py-4 mx-2">
-            <h2 className="text-6xl font-bold uppercase text-[#FFD700]">
-              {cardData.playerName || 'FLAPTZY'}
+            <h2 className="text-4xl font-bold uppercase text-[#FFD700]">
+              {cardData.playerName || ''}
             </h2>
             <p className="text-lg uppercase text-[#FFD700]">
               {cardData.title || ''}
